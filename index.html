@@ -34,7 +34,7 @@
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: #333; }
 
-        /* Input Container with Peeking Button */
+        /* Input Container */
         .input-wrapper {
             position: relative;
             background: var(--bg-elevated);
@@ -47,7 +47,7 @@
             background: transparent;
             width: 100%;
             padding: 1rem 1.5rem;
-            padding-right: 7rem; /* More space for 'DOWNLOAD' text */
+            padding-right: 7rem;
         }
         
         /* The "Peeking" Button */
@@ -58,10 +58,10 @@
             transform: translateY(-50%) translateX(20%);
             background: var(--text-main);
             color: var(--bg);
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1.2rem;
             border-radius: 0 0.5rem 0.5rem 0;
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.7rem; /* Slightly smaller to fit DOWNLOAD */
+            font-size: 0.7rem;
             font-weight: 600;
             letter-spacing: 0.05em;
             cursor: pointer;
@@ -157,10 +157,6 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 History
             </button>
-            <button onclick="UI.openModal('settings')" class="nav-item flex items-center gap-3 px-6 py-3 text-sm">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                Settings
-            </button>
             <button onclick="UI.openModal('about')" class="nav-item flex items-center gap-3 px-6 py-3 text-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 About
@@ -168,7 +164,7 @@
         </nav>
 
         <div class="p-4 border-t border-[var(--border)] text-xs text-center text-[var(--text-muted)]">
-            v1.0.0 • Open Source
+            v1.0.0 • Simple & Free
         </div>
     </aside>
 
@@ -227,14 +223,10 @@
     </main>
 
     <!-- ==================== MOBILE BOTTOM NAV ==================== -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-[var(--bg-elevated)] border-t border-[var(--border)] grid grid-cols-3 text-xs">
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-[var(--bg-elevated)] border-t border-[var(--border)] grid grid-cols-2 text-xs">
         <button onclick="UI.openModal('history')" class="flex flex-col items-center justify-center py-3 nav-item">
             <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             History
-        </button>
-        <button onclick="UI.openModal('settings')" class="flex flex-col items-center justify-center py-3 nav-item">
-            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            Settings
         </button>
         <button onclick="UI.openModal('about')" class="flex flex-col items-center justify-center py-3 nav-item">
             <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -253,32 +245,30 @@
     </div>
 
     <script>
-        /* ===== LOGIC LAYER ===== */
+        /* ===== LOGIC LAYER - AUTOMATED FOR USER FRIENDLINESS ===== */
         const Logic = {
             state: {
                 mode: 'auto',
                 processing: false,
                 history: [],
-                settings: {
-                    // Using a CORS-friendly mirror for the API to fix "Network Error"
-                    apiEndpoint: 'https://co-api.wdh.app/api/json' 
-                }
+                // List of reliable public processing instances.
+                // The tool will automatically try these one by one if one fails.
+                endpoints: [
+                    'https://co-api.wdh.app/api/json', // Mirror 1
+                    'https://api.cobalt.tools/api/json', // Official
+                    'https://cobalt-api.kwiatekmiki.pl/api/json' // Community Mirror 2
+                ]
             },
 
             init() {
                 this.state.history = JSON.parse(localStorage.getItem('kittipaw_history') || '[]');
-                const savedSettings = JSON.parse(localStorage.getItem('kittipaw_settings') || '{}');
-                // Merge saved settings with default
-                this.state.settings = {...this.state.settings, ...savedSettings};
             },
 
             async processUrl(url) {
                 if (!this.isValidUrl(url)) {
-                    return { success: false, error: "Invalid URL format" };
+                    return { success: false, error: "That doesn't look like a valid link." };
                 }
 
-                const apiUrl = this.state.settings.apiEndpoint;
-                
                 const body = {
                     url: url,
                     vCodec: "h264",
@@ -288,32 +278,47 @@
                     isAudioMuted: this.state.mode === 'mute'
                 };
 
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(body)
-                    });
-
-                    const data = await response.json();
-
-                    if (data.status === 'error') {
-                        return { success: false, error: data.error.code || 'Processing failed' };
-                    }
-
-                    if (data.status === 'redirect' || data.status === 'stream') {
-                        return { success: true, url: data.url, filename: this.generateFilename(url) };
-                    }
+                // Try each endpoint until one works
+                for (let i = 0; i < this.state.endpoints.length; i++) {
+                    const endpoint = this.state.endpoints[i];
                     
-                    return { success: false, error: 'No download link found.' };
+                    // Update UI to show we are trying (optional, handled by UI layer)
+                    if(i > 0) UI.updateStatusText(`Server busy, trying #${i+1}...`);
 
-                } catch (err) {
-                    console.error(err);
-                    return { success: false, error: 'Network/CORS error. Check API in Settings.' };
+                    try {
+                        const response = await fetch(endpoint, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(body)
+                        });
+
+                        if (!response.ok) continue; // Try next server
+
+                        const data = await response.json();
+
+                        if (data.status === 'error') {
+                             // If error is server-side (rate limit), try next. If client error, stop.
+                             if(data.error.code === 'error.api.link_invalid') {
+                                 return { success: false, error: "This link is not supported." };
+                             }
+                             continue; 
+                        }
+
+                        if (data.status === 'redirect' || data.status === 'stream') {
+                            return { success: true, url: data.url, filename: this.generateFilename(url) };
+                        }
+
+                    } catch (err) {
+                        console.warn(`Endpoint ${endpoint} failed:`, err);
+                        // Continue to next endpoint
+                    }
                 }
+
+                // If all fail
+                return { success: false, error: "All servers are busy. Please try again in a minute." };
             },
 
             async forceDownload(url, filename) {
@@ -341,6 +346,7 @@
                         await writable.write(blob);
                         await writable.close();
                     } else {
+                        // Fallback for mobile/Safari/Firefox
                         const blobUrl = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = blobUrl;
@@ -353,6 +359,7 @@
                     return true;
                 } catch (e) {
                     console.error(e);
+                    // Ultimate fallback: open in new tab
                     window.open(url, '_blank');
                     return false;
                 }
@@ -379,10 +386,6 @@
 
             saveHistory() {
                 localStorage.setItem('kittipaw_history', JSON.stringify(this.state.history));
-            },
-
-            saveSettings() {
-                localStorage.setItem('kittipaw_settings', JSON.stringify(this.state.settings));
             }
         };
 
@@ -435,10 +438,9 @@
                         const text = await navigator.clipboard.readText();
                         this.elements.input.value = text;
                         this.updateButtonState();
-                        // Auto-trigger if valid
                         if (Logic.isValidUrl(text)) this.handleActionClick(); 
                     } catch (err) {
-                        this.showError("Could not access clipboard");
+                        this.showError("Could not access clipboard. Try pasting manually.");
                     }
                     return;
                 }
@@ -448,7 +450,7 @@
                 const result = await Logic.processUrl(url);
                 
                 if (result.success) {
-                    this.elements.statusText.textContent = "Fetching file...";
+                    this.updateStatusText("Preparing file...");
                     await Logic.forceDownload(result.url, result.filename);
                     
                     Logic.state.history.unshift({
@@ -466,8 +468,11 @@
 
             updateButtonState() {
                 const hasText = this.elements.input.value.trim() !== "";
-                // If text present, it becomes DOWNLOAD, else PASTE
                 this.elements.actionBtn.textContent = hasText ? "DOWNLOAD" : "PASTE";
+            },
+
+            updateStatusText(text) {
+                this.elements.statusText.textContent = text;
             },
 
             startProcessing() {
@@ -477,7 +482,7 @@
                 this.elements.input.disabled = true;
                 this.elements.actionBtn.disabled = true;
                 this.elements.actionBtn.style.opacity = 0.5;
-                this.elements.statusText.textContent = "Contacting API...";
+                this.elements.statusText.textContent = "Connecting to server...";
             },
 
             stopProcessing(success, error = "") {
@@ -526,28 +531,6 @@
                         `).join('');
                     html = `<div>${listHtml}</div>`;
                 } 
-                else if (type === 'settings') {
-                    title = "Settings";
-                    html = `
-                        <div class="space-y-6 text-sm text-[var(--text-muted)]">
-                            <div class="flex flex-col gap-2">
-                                <label class="text-xs font-bold uppercase tracking-wider">Processing Instance (API)</label>
-                                <input id="api-url-input" type="text" value="${Logic.state.settings.apiEndpoint}" 
-                                    class="bg-[var(--bg)] border border-[var(--border)] p-2 rounded text-xs text-[var(--text-main)] w-full">
-                                <p class="text-[10px] opacity-50">Change this if you get Network Errors.</p>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span>Video Quality</span>
-                                <select class="bg-[var(--bg)] border border-[var(--border)] p-2 rounded text-xs text-[var(--text-main)]">
-                                    <option>1080p</option>
-                                    <option>720p</option>
-                                    <option>480p</option>
-                                </select>
-                            </div>
-                            <button onclick="UI.saveSettingsFromModal()" class="w-full bg-white text-black py-2 rounded font-bold text-xs">SAVE SETTINGS</button>
-                        </div>
-                    `;
-                } 
                 else if (type === 'about') {
                     title = "About";
                     const services = [
@@ -558,10 +541,10 @@
                     html = `
                         <div class="space-y-6 text-sm">
                             <div class="text-[var(--text-muted)]">
-                                <p>Kittipaw is an open-source, privacy-focused media downloader. No ads, no telemetry.</p>
+                                <p>Kittipaw helps you save videos to your device. No ads, no tracking.</p>
                             </div>
                             <div>
-                                <h4 class="text-[var(--text-main)] font-semibold mb-3 uppercase tracking-wider text-xs">Supported Services</h4>
+                                <h4 class="text-[var(--text-main)] font-semibold mb-3 uppercase tracking-wider text-xs">Works With</h4>
                                 <div class="flex flex-wrap gap-2">
                                     ${services.map(s => `<span class="service-tag">${s}</span>`).join('')}
                                 </div>
@@ -583,16 +566,6 @@
             closeModal() {
                 this.elements.container.classList.remove('open');
                 this.elements.overlay.classList.remove('visible');
-            },
-
-            saveSettingsFromModal() {
-                const input = document.getElementById('api-url-input');
-                if(input && input.value) {
-                    Logic.state.settings.apiEndpoint = input.value;
-                    Logic.saveSettings();
-                    alert("Settings Saved!");
-                    this.closeModal();
-                }
             }
         };
 
@@ -602,4 +575,4 @@
         });
     </script>
 </body>
-      </html>
+    </html>

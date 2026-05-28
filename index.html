@@ -174,9 +174,10 @@
         <div class="flex-1 flex items-center justify-center p-4 pb-24 md:pb-4">
             <div class="w-full max-w-md flex flex-col items-center gap-8">
                 
-                <!-- Logo Area -->
+                <!-- Logo Area - FIXED: No more circle mask -->
                 <div class="flex flex-col items-center gap-4">
-                    <img src="cattie.png" alt="Kittipaw Logo" class="w-24 h-24 rounded-full object-cover border-2 border-[var(--border)] shadow-lg">
+                    <!-- Removed rounded-full and object-cover to show the full PNG -->
+                    <img src="cattie.png" alt="Kittipaw Logo" class="w-24 h-24 object-contain">
                     
                     <div class="text-center">
                         <h2 class="font-display text-2xl tracking-wide">KITTIPAW</h2>
@@ -245,18 +246,20 @@
     </div>
 
     <script>
-        /* ===== LOGIC LAYER - GITHUB PAGES FRIENDLY ===== */
+        /* ===== LOGIC LAYER - RELIABLE API CONNECTION ===== */
         const Logic = {
             state: {
                 mode: 'auto',
                 processing: false,
                 history: [],
                 endpoints: [
-                    // Primary Official API
+                    // 1. Official Cobalt API (Direct)
                     'https://api.cobalt.tools/api/json',
-                    // Community Mirrors
+                    // 2. Reliable Community Instances
                     'https://cobalt-api.kwiatekmiki.pl/api/json',
-                    // Fallback Proxied API (Bypasses strict CORS issues)
+                    // 3. Alternative Instances
+                    'https://cobalt-api.nevets.i.ng/api/json',
+                    // 4. Proxied Official (Last resort for CORS issues)
                     'https://corsproxy.io/?https://api.cobalt.tools/api/json'
                 ]
             },
@@ -279,39 +282,42 @@
                     isAudioMuted: this.state.mode === 'mute'
                 };
 
-                // Smart Retry Loop
+                // Robust Retry Logic
                 for (let i = 0; i < this.state.endpoints.length; i++) {
                     const endpoint = this.state.endpoints[i];
                     
-                    // User feedback update
-                    if(i > 0) UI.updateStatusText(`Connecting... (Method ${i+1})`);
+                    // User Feedback
+                    if(i > 0) UI.updateStatusText(`Connecting... (Server ${i+1})`);
 
                     try {
-                        // Determine if we need to adjust headers for proxy
-                        // Most proxies forward our JSON body correctly, but we handle logic just in case.
-                        
                         const response = await fetch(endpoint, {
                             method: 'POST',
                             headers: {
                                 'Accept': 'application/json',
                                 'Content-Type': 'application/json',
+                                // Some instances require these headers to verify it's a browser
+                                'Origin': window.location.origin 
                             },
                             body: JSON.stringify(body)
                         });
 
-                        // If server error, try next endpoint
+                        // Skip if server error (5xx) or not found
+                        if (response.status >= 500) continue;
                         if (!response.ok) continue;
 
                         const data = await response.json();
 
+                        // Handle API Logic Errors
                         if (data.status === 'error') {
-                             // If API returns specific error, stop trying (it means the link is bad)
-                             if(data.error && data.error.code) {
+                             // Specific user-friendly error handling
+                             if(data.error.code === 'error.api.link_invalid') {
                                  return { success: false, error: "Unsupported or broken link." };
                              }
+                             // If generic error, try next server
                              continue; 
                         }
 
+                        // Success Case
                         if (data.status === 'redirect' || data.status === 'stream') {
                             return { success: true, url: data.url, filename: this.generateFilename(url) };
                         }
@@ -322,21 +328,21 @@
                     }
                 }
 
-                return { success: false, error: "Connection failed. Please check your internet." };
+                return { success: false, error: "Servers are busy or offline. Please try again later." };
             },
 
             async forceDownload(url, filename) {
-                // Use CORS proxy for the actual file download to ensure GitHub Pages compatibility
+                // Use CORS proxy for the actual file download
                 const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
                 
                 try {
-                    UI.updateStatusText("Downloading file...");
+                    UI.updateStatusText("Preparing file...");
                     const response = await fetch(proxyUrl);
                     if (!response.ok) throw new Error("Download failed");
                     
                     const blob = await response.blob();
                     
-                    // Modern "Save As" Dialog
+                    // Try Modern File System API (Chrome/Edge)
                     if (window.showSaveFilePicker) {
                         const ext = this.state.mode === 'audio' ? 'mp3' : 'mp4';
                         const handle = await window.showSaveFilePicker({
@@ -366,7 +372,7 @@
                     return true;
                 } catch (e) {
                     console.error(e);
-                    // Ultimate Fallback: Open raw stream in new tab
+                    // Ultimate Fallback: Open in new tab
                     window.open(url, '_blank');
                     return false;
                 }
@@ -582,4 +588,4 @@
         });
     </script>
 </body>
-                </html>
+</html>

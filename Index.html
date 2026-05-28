@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kittipaw</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #000000;
+            --bg-elevated: #0a0a0a;
+            --surface: #141414;
+            --border: #262626;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--bg);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-display {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #333; }
+
+        /* Input Container with Peeking Button */
+        .input-wrapper {
+            position: relative;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem; /* rounded-xl */
+            overflow: visible; /* Allows button to pop out */
+        }
+
+        .input-field {
+            background: transparent;
+            width: 100%;
+            padding: 1rem 1.5rem; /* py-4 px-6ish */
+            padding-right: 5rem; /* Space for the button inside */
+        }
+        
+        /* The "Peeking" Button */
+        .btn-paste {
+            position: absolute;
+            right: -1px; /* Align to edge */
+            top: 50%;
+            transform: translateY(-50%) translateX(20%); /* Peek out 20% */
+            background: var(--text-main);
+            color: var(--bg);
+            padding: 0.5rem 1.5rem;
+            border-radius: 0 0.5rem 0.5rem 0; /* Rounded right corners */
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.8);
+            z-index: 20;
+        }
+
+        .btn-paste:hover {
+            background: #e0e0e0;
+            transform: translateY(-50%) translateX(22%);
+        }
+
+        /* Mode Pills */
+        .mode-pill {
+            transition: all 0.2s ease;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+        }
+        .mode-pill.active {
+            background: var(--text-main);
+            color: var(--bg);
+            border-color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* Navigation */
+        .nav-item {
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .nav-item:hover {
+            color: var(--text-main);
+            background: rgba(255,255,255,0.03);
+        }
+
+        /* Modal Animation */
+        .modal-panel {
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-panel.open {
+            transform: translateY(0);
+        }
+
+        .overlay-bg {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .overlay-bg.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Service Tags */
+        .service-tag {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--text-main);
+            display: inline-block;
+        }
+
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow { animation: spin-slow 2s linear infinite; }
+    </style>
+</head>
+<body class="h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- ==================== DESKTOP SIDEBAR ==================== -->
+    <aside class="hidden md:flex flex-col w-64 border-r border-[var(--border)] bg-[var(--bg)]">
+        <div class="p-6 border-b border-[var(--border)]">
+            <h1 class="font-display text-xl tracking-wider">KITTIPAW</h1>
+            <p class="text-xs text-[var(--text-muted)] mt-1">Open Source Downloader</p>
+        </div>
+        
+        <nav class="flex-1 py-4 flex flex-col gap-1">
+            <button onclick="UI.openModal('history')" class="nav-item flex items-center gap-3 px-6 py-3 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                History
+            </button>
+            <button onclick="UI.openModal('settings')" class="nav-item flex items-center gap-3 px-6 py-3 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                Settings
+            </button>
+            <button onclick="UI.openModal('about')" class="nav-item flex items-center gap-3 px-6 py-3 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                About
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-[var(--border)] text-xs text-center text-[var(--text-muted)]">
+            v1.0.0 • Open Source
+        </div>
+    </aside>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main class="flex-1 flex flex-col relative overflow-y-auto">
+        
+        <div class="flex-1 flex items-center justify-center p-4 pb-24 md:pb-4">
+            <div class="w-full max-w-md flex flex-col items-center gap-8">
+                
+                <!-- Logo Area -->
+                <div class="flex flex-col items-center gap-4">
+                    <img src="cattie.png" alt="Kittipaw Logo" class="w-24 h-24 rounded-full object-cover border-2 border-[var(--border)] shadow-lg">
+                    
+                    <div class="text-center">
+                        <h2 class="font-display text-2xl tracking-wide">KITTIPAW</h2>
+                        <p class="text-xs text-[var(--text-muted)] mt-1 tracking-widest uppercase">Community Instance</p>
+                    </div>
+                    
+                    <!-- Functional White "Save" Button -->
+                    <button id="btn-save-top" class="mt-2 bg-white text-black px-8 py-2 text-xs font-bold tracking-widest rounded shadow hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black">
+                        SAVE
+                    </button>
+                </div>
+
+                <!-- Input Area -->
+                <div class="w-full space-y-4">
+                    
+                    <!-- Input Field with Peeking Button -->
+                    <div class="input-wrapper shadow-lg">
+                        <input 
+                            type="text" 
+                            id="url-input" 
+                            placeholder="paste the link here" 
+                            class="input-field text-sm placeholder-[var(--text-muted)] outline-none"
+                            autocomplete="off"
+                        >
+                        <button id="btn-action" class="btn-paste">
+                            PASTE
+                        </button>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="error-msg" class="text-center text-red-500 text-xs h-4 hidden px-2 transition-opacity"></div>
+
+                    <!-- Mode Toggles -->
+                    <div class="flex justify-center gap-3">
+                        <button class="mode-pill active px-6 py-2 rounded-full text-xs tracking-wider" data-mode="auto">AUTO</button>
+                        <button class="mode-pill px-6 py-2 rounded-full text-xs tracking-wider" data-mode="audio">AUDIO</button>
+                        <button class="mode-pill px-6 py-2 rounded-full text-xs tracking-wider" data-mode="mute">MUTE</button>
+                    </div>
+                </div>
+
+                <!-- Processing State -->
+                <div id="processing" class="hidden flex flex-col items-center gap-4 mt-4">
+                    <div class="w-6 h-6 border-2 border-[var(--text-muted)] border-t-[var(--text-main)] rounded-full animate-spin-slow"></div>
+                    <p class="text-xs text-[var(--text-muted)]" id="status-text">Processing...</p>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- ==================== MOBILE BOTTOM NAV ==================== -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-[var(--bg-elevated)] border-t border-[var(--border)] grid grid-cols-3 text-xs">
+        <button onclick="UI.openModal('history')" class="flex flex-col items-center justify-center py-3 nav-item">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            History
+        </button>
+        <button onclick="UI.openModal('settings')" class="flex flex-col items-center justify-center py-3 nav-item">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            Settings
+        </button>
+        <button onclick="UI.openModal('about')" class="flex flex-col items-center justify-center py-3 nav-item">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            About
+        </button>
+    </nav>
+
+    <!-- ==================== MODALS ==================== -->
+    <div id="modal-overlay" class="overlay-bg fixed inset-0 bg-black/80 backdrop-blur-sm z-40" onclick="UI.closeModal()"></div>
+    <div id="modal-container" class="modal-panel fixed bottom-0 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto md:top-1/2 md:-translate-y-1/2 mx-auto md:max-w-md bg-[var(--bg-elevated)] border border-[var(--border)] md:rounded-xl rounded-t-2xl z-50 shadow-2xl flex flex-col max-h-[80vh]">
+        <div class="p-6 border-b border-[var(--border)] flex justify-between items-center">
+            <h3 id="modal-title" class="font-display text-lg tracking-wide uppercase"></h3>
+            <button onclick="UI.closeModal()" class="text-[var(--text-muted)] hover:text-white text-2xl leading-none">&times;</button>
+        </div>
+        <div id="modal-content" class="modal-body p-6 overflow-y-auto"></div>
+    </div>
+
+    <script>
+        /* ===== LOGIC LAYER ===== */
+        const Logic = {
+            state: {
+                mode: 'auto',
+                processing: false,
+                history: []
+            },
+
+            init() {
+                this.state.history = JSON.parse(localStorage.getItem('kittipaw_history') || '[]');
+            },
+
+            async processUrl(url) {
+                if (!this.isValidUrl(url)) {
+                    return { success: false, error: "Invalid URL format" };
+                }
+
+                // Cobalt API Configuration
+                const apiUrl = 'https://api.cobalt.tools/api/json';
+                
+                // Construct payload based on selected mode
+                const body = {
+                    url: url,
+                    vCodec: "h264",
+                    vQuality: "1080",
+                    aFormat: "mp3",
+                    isAudioOnly: this.state.mode === 'audio',
+                    isAudioMuted: this.state.mode === 'mute'
+                };
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(body)
+                    });
+
+                    const data = await response.json();
+
+                    if (data.status === 'error') {
+                        return { success: false, error: data.error.code || 'Processing failed' };
+                    }
+
+                    if (data.status === 'redirect' || data.status === 'stream') {
+                        return { success: true, url: data.url, filename: this.generateFilename(url) };
+                    }
+                    
+                    return { success: false, error: 'No download link found.' };
+
+                } catch (err) {
+                    console.error(err);
+                    return { success: false, error: 'Network error. Check connection.' };
+                }
+            },
+
+            async forceDownload(url, filename) {
+                // Use a CORS proxy to fetch the blob for the "Save As" dialog
+                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+                
+                try {
+                    // 1. Fetch the file as a Blob
+                    const response = await fetch(proxyUrl);
+                    if (!response.ok) throw new Error("Network response was not ok.");
+                    
+                    const blob = await response.blob();
+                    
+                    // 2. Try Modern File System Access API (Chrome/Edge)
+                    if (window.showSaveFilePicker) {
+                        const ext = this.state.mode === 'audio' ? 'mp3' : 'mp4';
+                        const handle = await window.showSaveFilePicker({
+                            suggestedName: filename || `kittipaw_download.${ext}`,
+                            types: [{
+                                description: 'Media File',
+                                accept: { 
+                                    'video/mp4': ['.mp4'], 
+                                    'audio/mpeg': ['.mp3'] 
+                                }
+                            }]
+                        });
+                        const writable = await handle.createWritable();
+                        await writable.write(blob);
+                        await writable.close();
+                    } else {
+                        // 3. Fallback for other browsers (Safari/Firefox)
+                        const blobUrl = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = blobUrl;
+                        a.download = filename || 'download';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(blobUrl);
+                    }
+                    return true;
+                } catch (e) {
+                    console.error(e);
+                    // 4. Ultimate Fallback: Open in new tab if Blob fails
+                    window.open(url, '_blank');
+                    return false;
+                }
+            },
+
+            generateFilename(url) {
+                try {
+                    // Try to extract a clean name from URL
+                    const path = new URL(url).pathname.split('/').pop();
+                    if(path && path.length > 3) return path;
+                    
+                    // Fallback name
+                    return `kittipaw_${this.state.mode === 'audio' ? 'audio' : 'video'}`;
+                } catch {
+                    return 'kittipaw_download';
+                }
+            },
+
+            isValidUrl(string) {
+                try {
+                    new URL(string);
+                    return true;
+                } catch (_) {
+                    return false;
+                }
+            },
+
+            saveHistory() {
+                localStorage.setItem('kittipaw_history', JSON.stringify(this.state.history));
+            }
+        };
+
+        /* ===== UI LAYER ===== */
+        const UI = {
+            elements: {},
+
+            init() {
+                this.elements = {
+                    input: document.getElementById('url-input'),
+                    actionBtn: document.getElementById('btn-action'),
+                    saveBtn: document.getElementById('btn-save-top'),
+                    errorMsg: document.getElementById('error-msg'),
+                    processing: document.getElementById('processing'),
+                    statusText: document.getElementById('status-text'),
+                    modeBtns: document.querySelectorAll('.mode-pill'),
+                    overlay: document.getElementById('modal-overlay'),
+                    container: document.getElementById('modal-container'),
+                    title: document.getElementById('modal-title'),
+                    content: document.getElementById('modal-content')
+                };
+
+                // Mode Buttons
+                this.elements.modeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.elements.modeBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        Logic.state.mode = btn.dataset.mode;
+                    });
+                });
+
+                // Input Listener
+                this.elements.input.addEventListener('input', () => {
+                    this.updateButtonState();
+                    this.hideError();
+                });
+
+                // Action Buttons
+                this.elements.actionBtn.addEventListener('click', () => this.handleActionClick());
+                this.elements.saveBtn.addEventListener('click', () => this.handleActionClick());
+
+                // Enter Key
+                this.elements.input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') this.handleActionClick();
+                });
+            },
+
+            async handleActionClick() {
+                if (Logic.state.processing) return;
+
+                const url = this.elements.input.value.trim();
+
+                // Case 1: Empty -> Paste from Clipboard
+                if (url === "") {
+                    try {
+                        const text = await navigator.clipboard.readText();
+                        this.elements.input.value = text;
+                        this.updateButtonState();
+                        if (Logic.isValidUrl(text)) this.handleActionClick(); 
+                    } catch (err) {
+                        this.showError("Could not access clipboard");
+                    }
+                    return;
+                }
+
+                // Case 2: Process URL
+                this.startProcessing();
+                const result = await Logic.processUrl(url);
+                
+                if (result.success) {
+                    this.elements.statusText.textContent = "Fetching file...";
+                    const downloaded = await Logic.forceDownload(result.url, result.filename);
+                    
+                    // Add to History
+                    Logic.state.history.unshift({
+                        url: url,
+                        mode: Logic.state.mode,
+                        date: new Date().toLocaleString()
+                    });
+                    Logic.saveHistory();
+                    
+                    this.stopProcessing(true);
+                } else {
+                    this.stopProcessing(false, result.error);
+                }
+            },
+
+            updateButtonState() {
+                const hasText = this.elements.input.value.trim() !== "";
+                this.elements.actionBtn.textContent = hasText ? "START" : "PASTE";
+            },
+
+            startProcessing() {
+                Logic.state.processing = true;
+                this.elements.errorMsg.classList.add('hidden');
+                this.elements.processing.classList.remove('hidden');
+                this.elements.input.disabled = true;
+                this.elements.actionBtn.style.opacity = 0.5;
+                this.elements.saveBtn.style.opacity = 0.5;
+                this.elements.statusText.textContent = "Contacting API...";
+            },
+
+            stopProcessing(success, error = "") {
+                Logic.state.processing = false;
+                this.elements.processing.classList.add('hidden');
+                this.elements.input.disabled = false;
+                this.elements.actionBtn.style.opacity = 1;
+                this.elements.saveBtn.style.opacity = 1;
+
+                if (success) {
+                    this.elements.input.value = "";
+                    this.updateButtonState();
+                    this.elements.statusText.textContent = "Done!";
+                } else {
+                    this.showError(error);
+                }
+            },
+
+            showError(msg) {
+                this.elements.errorMsg.textContent = msg;
+                this.elements.errorMsg.classList.remove('hidden');
+            },
+
+            hideError() {
+                this.elements.errorMsg.classList.add('hidden');
+            },
+
+            /* Modal System */
+            openModal(type) {
+                let html = '';
+                let title = '';
+                
+                if (type === 'history') {
+                    title = "History";
+                    const list = Logic.state.history;
+                    const listHtml = list.length === 0 
+                        ? '<div class="text-center text-[var(--text-muted)] py-8">No history yet</div>'
+                        : list.map(item => `
+                            <div class="border-b border-[var(--border)] py-3 text-xs last:border-0">
+                                <div class="flex justify-between text-[var(--text-muted)] mb-1">
+                                    <span class="uppercase">${item.mode}</span>
+                                    <span>${item.date}</span>
+                                </div>
+                                <div class="truncate text-[var(--text-main)]">${item.url}</div>
+                            </div>
+                        `).join('');
+                    html = `<div>${listHtml}</div>`;
+                } 
+                else if (type === 'settings') {
+                    title = "Settings";
+                    html = `
+                        <div class="space-y-6 text-sm text-[var(--text-muted)]">
+                            <div class="flex justify-between items-center">
+                                <span>Video Quality</span>
+                                <select class="bg-[var(--bg)] border border-[var(--border)] p-2 rounded text-xs text-[var(--text-main)]">
+                                    <option>1080p</option>
+                                    <option>720p</option>
+                                    <option>480p</option>
+                                </select>
+                            </div>
+                            <p class="text-[10px] opacity-50">Settings are saved locally.</p>
+                        </div>
+                    `;
+                } 
+                else if (type === 'about') {
+                    title = "About";
+                    const services = [
+                        "Bilibili", "Bluesky", "Dailymotion", "Facebook", "Instagram", "OK.ru", 
+                        "Pinterest", "Reddit", "Rutube", "Snapchat", "SoundCloud", "Streamable", 
+                        "TikTok", "Tumblr", "Twitch", "Twitter / X", "Vimeo", "VK", "YouTube"
+                    ];
+                    html = `
+                        <div class="space-y-6 text-sm">
+                            <div class="text-[var(--text-muted)]">
+                                <p>Kittipaw is an open-source, privacy-focused media downloader. No ads, no telemetry.</p>
+                            </div>
+                            <div>
+                                <h4 class="text-[var(--text-main)] font-semibold mb-3 uppercase tracking-wider text-xs">Supported Services</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    ${services.map(s => `<span class="service-tag">${s}</span>`).join('')}
+                                </div>
+                                <p class="text-[10px] text-[var(--text-muted)] mt-3 leading-relaxed">
+                                    Service support indicates technical compatibility only.
+                                </p>
+                            </div>
+                            <div class="border-t border-[var(--border)] pt-4 text-xs text-[var(--text-muted)]">
+                                <p>Version: 1.0.0</p>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                this.elements.title.textContent = title;
+                this.elements.content.innerHTML = html;
+                
+                this.elements.overlay.classList.add('visible');
+                this.elements.container.classList.add('open');
+            },
+
+            closeModal() {
+                this.elements.container.classList.remove('open');
+                this.elements.overlay.classList.remove('visible');
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Logic.init();
+            UI.init();
+        });
+    </script>
+</body>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </html>

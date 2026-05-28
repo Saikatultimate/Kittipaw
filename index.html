@@ -26,15 +26,12 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .font-display {
-            font-family: 'Orbitron', sans-serif;
-        }
+        .font-display { font-family: 'Orbitron', sans-serif; }
 
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: #333; }
 
-        /* Input Container */
         .input-wrapper {
             position: relative;
             background: var(--bg-elevated);
@@ -50,7 +47,6 @@
             padding-right: 7rem;
         }
         
-        /* The "Peeking" Button */
         .btn-action {
             position: absolute;
             right: -1px;
@@ -77,12 +73,8 @@
             transform: translateY(-50%) translateX(22%);
         }
         
-        .btn-action:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+        .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* Mode Pills */
         .mode-pill {
             transition: all 0.2s ease;
             border: 1px solid var(--border);
@@ -96,36 +88,18 @@
             font-weight: 600;
         }
 
-        /* Navigation */
-        .nav-item {
-            color: var(--text-muted);
-            transition: all 0.2s;
-        }
-        .nav-item:hover {
-            color: var(--text-main);
-            background: rgba(255,255,255,0.03);
-        }
+        .nav-item { color: var(--text-muted); transition: all 0.2s; }
+        .nav-item:hover { color: var(--text-main); background: rgba(255,255,255,0.03); }
 
-        /* Modal Animation */
         .modal-panel {
             transform: translateY(100%);
             transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .modal-panel.open {
-            transform: translateY(0);
-        }
+        .modal-panel.open { transform: translateY(0); }
 
-        .overlay-bg {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        .overlay-bg.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        .overlay-bg { opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+        .overlay-bg.visible { opacity: 1; pointer-events: auto; }
 
-        /* Service Tags */
         .service-tag {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -136,22 +110,17 @@
             display: inline-block;
         }
 
-        @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .animate-spin-slow { animation: spin-slow 2s linear infinite; }
     </style>
 </head>
 <body class="h-screen flex flex-col md:flex-row overflow-hidden">
 
-    <!-- ==================== DESKTOP SIDEBAR ==================== -->
     <aside class="hidden md:flex flex-col w-64 border-r border-[var(--border)] bg-[var(--bg)]">
         <div class="p-6 border-b border-[var(--border)]">
             <h1 class="font-display text-xl tracking-wider">KITTIPAW</h1>
             <p class="text-xs text-[var(--text-muted)] mt-1">Open Source Downloader</p>
         </div>
-        
         <nav class="flex-1 py-4 flex flex-col gap-1">
             <button onclick="UI.openModal('history')" class="nav-item flex items-center gap-3 px-6 py-3 text-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -162,50 +131,28 @@
                 About
             </button>
         </nav>
-
         <div class="p-4 border-t border-[var(--border)] text-xs text-center text-[var(--text-muted)]">
-            v1.0.0 • Simple & Free
+            v2.0 • Powered by Vercel
         </div>
     </aside>
 
-    <!-- ==================== MAIN CONTENT ==================== -->
     <main class="flex-1 flex flex-col relative overflow-y-auto">
-        
         <div class="flex-1 flex items-center justify-center p-4 pb-24 md:pb-4">
             <div class="w-full max-w-md flex flex-col items-center gap-8">
-                
-                <!-- Logo Area - FIXED: No more circle mask -->
                 <div class="flex flex-col items-center gap-4">
-                    <!-- Removed rounded-full and object-cover to show the full PNG -->
                     <img src="cattie.png" alt="Kittipaw Logo" class="w-24 h-24 object-contain">
-                    
                     <div class="text-center">
                         <h2 class="font-display text-2xl tracking-wide">KITTIPAW</h2>
                         <p class="text-xs text-[var(--text-muted)] mt-1 tracking-widest uppercase">Community Instance</p>
                     </div>
                 </div>
 
-                <!-- Input Area -->
                 <div class="w-full space-y-4">
-                    
-                    <!-- Input Field with Peeking Button -->
                     <div class="input-wrapper shadow-lg">
-                        <input 
-                            type="text" 
-                            id="url-input" 
-                            placeholder="paste the link here" 
-                            class="input-field text-sm placeholder-[var(--text-muted)] outline-none"
-                            autocomplete="off"
-                        >
-                        <button id="btn-action" class="btn-action">
-                            PASTE
-                        </button>
+                        <input type="text" id="url-input" placeholder="paste the link here" class="input-field text-sm placeholder-[var(--text-muted)] outline-none" autocomplete="off">
+                        <button id="btn-action" class="btn-action">PASTE</button>
                     </div>
-
-                    <!-- Error Message -->
                     <div id="error-msg" class="text-center text-red-500 text-xs h-4 hidden px-2 transition-opacity"></div>
-
-                    <!-- Mode Toggles -->
                     <div class="flex justify-center gap-3">
                         <button class="mode-pill active px-6 py-2 rounded-full text-xs tracking-wider" data-mode="auto">AUTO</button>
                         <button class="mode-pill px-6 py-2 rounded-full text-xs tracking-wider" data-mode="audio">AUDIO</button>
@@ -213,17 +160,14 @@
                     </div>
                 </div>
 
-                <!-- Processing State -->
                 <div id="processing" class="hidden flex flex-col items-center gap-4 mt-4">
                     <div class="w-6 h-6 border-2 border-[var(--text-muted)] border-t-[var(--text-main)] rounded-full animate-spin-slow"></div>
                     <p class="text-xs text-[var(--text-muted)]" id="status-text">Processing...</p>
                 </div>
-
             </div>
         </div>
     </main>
 
-    <!-- ==================== MOBILE BOTTOM NAV ==================== -->
     <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-[var(--bg-elevated)] border-t border-[var(--border)] grid grid-cols-2 text-xs">
         <button onclick="UI.openModal('history')" class="flex flex-col items-center justify-center py-3 nav-item">
             <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -235,7 +179,6 @@
         </button>
     </nav>
 
-    <!-- ==================== MODALS ==================== -->
     <div id="modal-overlay" class="overlay-bg fixed inset-0 bg-black/80 backdrop-blur-sm z-40" onclick="UI.closeModal()"></div>
     <div id="modal-container" class="modal-panel fixed bottom-0 left-0 right-0 md:relative md:bottom-auto md:left-auto md:right-auto md:top-1/2 md:-translate-y-1/2 mx-auto md:max-w-md bg-[var(--bg-elevated)] border border-[var(--border)] md:rounded-xl rounded-t-2xl z-50 shadow-2xl flex flex-col max-h-[80vh]">
         <div class="p-6 border-b border-[var(--border)] flex justify-between items-center">
@@ -246,22 +189,12 @@
     </div>
 
     <script>
-        /* ===== LOGIC LAYER - RELIABLE API CONNECTION ===== */
+        /* ===== LOGIC LAYER - CONNECTED TO YOUR BACKEND ===== */
         const Logic = {
             state: {
                 mode: 'auto',
                 processing: false,
-                history: [],
-                endpoints: [
-                    // 1. Official Cobalt API (Direct)
-                    'https://api.cobalt.tools/api/json',
-                    // 2. Reliable Community Instances
-                    'https://cobalt-api.kwiatekmiki.pl/api/json',
-                    // 3. Alternative Instances
-                    'https://cobalt-api.nevets.i.ng/api/json',
-                    // 4. Proxied Official (Last resort for CORS issues)
-                    'https://corsproxy.io/?https://api.cobalt.tools/api/json'
-                ]
+                history: []
             },
 
             init() {
@@ -273,76 +206,49 @@
                     return { success: false, error: "That doesn't look like a valid link." };
                 }
 
-                const body = {
-                    url: url,
-                    vCodec: "h264",
-                    vQuality: "1080",
-                    aFormat: "mp3",
-                    isAudioOnly: this.state.mode === 'audio',
-                    isAudioMuted: this.state.mode === 'mute'
-                };
+                try {
+                    // CALL YOUR OWN BACKEND HERE
+                    // When deployed on Vercel, /api/download maps to api/download.js
+                    const response = await fetch('/api/download', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            url: url, 
+                            mode: this.state.mode 
+                        })
+                    });
 
-                // Robust Retry Logic
-                for (let i = 0; i < this.state.endpoints.length; i++) {
-                    const endpoint = this.state.endpoints[i];
-                    
-                    // User Feedback
-                    if(i > 0) UI.updateStatusText(`Connecting... (Server ${i+1})`);
+                    const data = await response.json();
 
-                    try {
-                        const response = await fetch(endpoint, {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json',
-                                // Some instances require these headers to verify it's a browser
-                                'Origin': window.location.origin 
-                            },
-                            body: JSON.stringify(body)
-                        });
-
-                        // Skip if server error (5xx) or not found
-                        if (response.status >= 500) continue;
-                        if (!response.ok) continue;
-
-                        const data = await response.json();
-
-                        // Handle API Logic Errors
-                        if (data.status === 'error') {
-                             // Specific user-friendly error handling
-                             if(data.error.code === 'error.api.link_invalid') {
-                                 return { success: false, error: "Unsupported or broken link." };
-                             }
-                             // If generic error, try next server
-                             continue; 
-                        }
-
-                        // Success Case
-                        if (data.status === 'redirect' || data.status === 'stream') {
-                            return { success: true, url: data.url, filename: this.generateFilename(url) };
-                        }
-
-                    } catch (err) {
-                        console.warn(`Endpoint ${endpoint} failed:`, err);
-                        // Continue to next endpoint if network error occurs
+                    if (data.error) {
+                        return { success: false, error: data.error };
                     }
-                }
 
-                return { success: false, error: "Servers are busy or offline. Please try again later." };
+                    return { 
+                        success: true, 
+                        url: data.url, 
+                        filename: data.filename 
+                    };
+
+                } catch (err) {
+                    console.error(err);
+                    return { success: false, error: "Connection error. Is the backend running?" };
+                }
             },
 
             async forceDownload(url, filename) {
-                // Use CORS proxy for the actual file download
+                // Proxy is still useful here to force "Save As" instead of opening in tab
                 const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
                 
                 try {
-                    UI.updateStatusText("Preparing file...");
+                    UI.updateStatusText("Downloading file...");
                     const response = await fetch(proxyUrl);
                     if (!response.ok) throw new Error("Download failed");
                     
                     const blob = await response.blob();
                     
-                    // Try Modern File System API (Chrome/Edge)
                     if (window.showSaveFilePicker) {
                         const ext = this.state.mode === 'audio' ? 'mp3' : 'mp4';
                         const handle = await window.showSaveFilePicker({
@@ -359,7 +265,6 @@
                         await writable.write(blob);
                         await writable.close();
                     } else {
-                        // Fallback for Mobile/Safari
                         const blobUrl = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = blobUrl;
@@ -372,19 +277,8 @@
                     return true;
                 } catch (e) {
                     console.error(e);
-                    // Ultimate Fallback: Open in new tab
                     window.open(url, '_blank');
                     return false;
-                }
-            },
-
-            generateFilename(url) {
-                try {
-                    const path = new URL(url).pathname.split('/').pop();
-                    if(path && path.length > 3) return path;
-                    return `kittipaw_${this.state.mode === 'audio' ? 'audio' : 'video'}`;
-                } catch {
-                    return 'kittipaw_download';
                 }
             },
 
@@ -402,10 +296,9 @@
             }
         };
 
-        /* ===== UI LAYER ===== */
+        /* ===== UI LAYER (Unchanged) ===== */
         const UI = {
             elements: {},
-
             init() {
                 this.elements = {
                     input: document.getElementById('url-input'),
@@ -434,7 +327,6 @@
                 });
 
                 this.elements.actionBtn.addEventListener('click', () => this.handleActionClick());
-
                 this.elements.input.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') this.handleActionClick();
                 });
@@ -442,10 +334,8 @@
 
             async handleActionClick() {
                 if (Logic.state.processing) return;
-
                 const url = this.elements.input.value.trim();
 
-                // Case 1: Empty -> Paste
                 if (url === "") {
                     try {
                         const text = await navigator.clipboard.readText();
@@ -458,18 +348,14 @@
                     return;
                 }
 
-                // Case 2: Download
                 this.startProcessing();
                 const result = await Logic.processUrl(url);
                 
                 if (result.success) {
                     const downloaded = await Logic.forceDownload(result.url, result.filename);
-                    
                     if(downloaded) {
                         Logic.state.history.unshift({
-                            url: url,
-                            mode: Logic.state.mode,
-                            date: new Date().toLocaleString()
+                            url: url, mode: Logic.state.mode, date: new Date().toLocaleString()
                         });
                         Logic.saveHistory();
                     }
@@ -484,9 +370,7 @@
                 this.elements.actionBtn.textContent = hasText ? "DOWNLOAD" : "PASTE";
             },
 
-            updateStatusText(text) {
-                this.elements.statusText.textContent = text;
-            },
+            updateStatusText(text) { this.elements.statusText.textContent = text; },
 
             startProcessing() {
                 Logic.state.processing = true;
@@ -495,7 +379,7 @@
                 this.elements.input.disabled = true;
                 this.elements.actionBtn.disabled = true;
                 this.elements.actionBtn.style.opacity = 0.5;
-                this.elements.statusText.textContent = "Connecting to server...";
+                this.elements.statusText.textContent = "Contacting backend...";
             },
 
             stopProcessing(success, error = "") {
@@ -504,7 +388,6 @@
                 this.elements.input.disabled = false;
                 this.elements.actionBtn.disabled = false;
                 this.elements.actionBtn.style.opacity = 1;
-
                 if (success) {
                     this.elements.input.value = "";
                     this.updateButtonState();
@@ -514,20 +397,11 @@
                 }
             },
 
-            showError(msg) {
-                this.elements.errorMsg.textContent = msg;
-                this.elements.errorMsg.classList.remove('hidden');
-            },
+            showError(msg) { this.elements.errorMsg.textContent = msg; this.elements.errorMsg.classList.remove('hidden'); },
+            hideError() { this.elements.errorMsg.classList.add('hidden'); },
 
-            hideError() {
-                this.elements.errorMsg.classList.add('hidden');
-            },
-
-            /* Modal System */
             openModal(type) {
-                let html = '';
-                let title = '';
-                
+                let html = ''; let title = '';
                 if (type === 'history') {
                     title = "History";
                     const list = Logic.state.history;
@@ -543,35 +417,21 @@
                             </div>
                         `).join('');
                     html = `<div>${listHtml}</div>`;
-                } 
-                else if (type === 'about') {
+                } else if (type === 'about') {
                     title = "About";
-                    const services = [
-                        "Bilibili", "Bluesky", "Dailymotion", "Facebook", "Instagram", "OK.ru", 
-                        "Pinterest", "Reddit", "Rutube", "Snapchat", "SoundCloud", "Streamable", 
-                        "TikTok", "Tumblr", "Twitch", "Twitter / X", "Vimeo", "VK", "YouTube"
-                    ];
+                    const services = ["Bilibili", "Bluesky", "Dailymotion", "Facebook", "Instagram", "Pinterest", "Reddit", "TikTok", "Twitch", "Twitter / X", "Vimeo", "YouTube"];
                     html = `
                         <div class="space-y-6 text-sm">
-                            <div class="text-[var(--text-muted)]">
-                                <p>Kittipaw helps you save videos to your device. No ads, no tracking.</p>
-                            </div>
+                            <div class="text-[var(--text-muted)]"><p>Kittipaw helps you save videos. No ads, no tracking.</p></div>
                             <div>
                                 <h4 class="text-[var(--text-main)] font-semibold mb-3 uppercase tracking-wider text-xs">Works With</h4>
-                                <div class="flex flex-wrap gap-2">
-                                    ${services.map(s => `<span class="service-tag">${s}</span>`).join('')}
-                                </div>
+                                <div class="flex flex-wrap gap-2">${services.map(s => `<span class="service-tag">${s}</span>`).join('')}</div>
                             </div>
-                            <div class="border-t border-[var(--border)] pt-4 text-xs text-[var(--text-muted)]">
-                                <p>Version: 1.0.0</p>
-                            </div>
-                        </div>
-                    `;
+                            <div class="border-t border-[var(--border)] pt-4 text-xs text-[var(--text-muted)]"><p>Version: 2.0 (Serverless)</p></div>
+                        </div>`;
                 }
-
                 this.elements.title.textContent = title;
                 this.elements.content.innerHTML = html;
-                
                 this.elements.overlay.classList.add('visible');
                 this.elements.container.classList.add('open');
             },

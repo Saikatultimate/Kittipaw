@@ -245,18 +245,19 @@
     </div>
 
     <script>
-        /* ===== LOGIC LAYER - AUTOMATED FOR USER FRIENDLINESS ===== */
+        /* ===== LOGIC LAYER - GITHUB PAGES FRIENDLY ===== */
         const Logic = {
             state: {
                 mode: 'auto',
                 processing: false,
                 history: [],
-                // List of reliable public processing instances.
-                // The tool will automatically try these one by one if one fails.
                 endpoints: [
-                    'https://co-api.wdh.app/api/json', // Mirror 1
-                    'https://api.cobalt.tools/api/json', // Official
-                    'https://cobalt-api.kwiatekmiki.pl/api/json' // Community Mirror 2
+                    // Primary Official API
+                    'https://api.cobalt.tools/api/json',
+                    // Community Mirrors
+                    'https://cobalt-api.kwiatekmiki.pl/api/json',
+                    // Fallback Proxied API (Bypasses strict CORS issues)
+                    'https://corsproxy.io/?https://api.cobalt.tools/api/json'
                 ]
             },
 
@@ -278,14 +279,17 @@
                     isAudioMuted: this.state.mode === 'mute'
                 };
 
-                // Try each endpoint until one works
+                // Smart Retry Loop
                 for (let i = 0; i < this.state.endpoints.length; i++) {
                     const endpoint = this.state.endpoints[i];
                     
-                    // Update UI to show we are trying (optional, handled by UI layer)
-                    if(i > 0) UI.updateStatusText(`Server busy, trying #${i+1}...`);
+                    // User feedback update
+                    if(i > 0) UI.updateStatusText(`Connecting... (Method ${i+1})`);
 
                     try {
+                        // Determine if we need to adjust headers for proxy
+                        // Most proxies forward our JSON body correctly, but we handle logic just in case.
+                        
                         const response = await fetch(endpoint, {
                             method: 'POST',
                             headers: {
@@ -295,14 +299,15 @@
                             body: JSON.stringify(body)
                         });
 
-                        if (!response.ok) continue; // Try next server
+                        // If server error, try next endpoint
+                        if (!response.ok) continue;
 
                         const data = await response.json();
 
                         if (data.status === 'error') {
-                             // If error is server-side (rate limit), try next. If client error, stop.
-                             if(data.error.code === 'error.api.link_invalid') {
-                                 return { success: false, error: "This link is not supported." };
+                             // If API returns specific error, stop trying (it means the link is bad)
+                             if(data.error && data.error.code) {
+                                 return { success: false, error: "Unsupported or broken link." };
                              }
                              continue; 
                         }
@@ -313,23 +318,25 @@
 
                     } catch (err) {
                         console.warn(`Endpoint ${endpoint} failed:`, err);
-                        // Continue to next endpoint
+                        // Continue to next endpoint if network error occurs
                     }
                 }
 
-                // If all fail
-                return { success: false, error: "All servers are busy. Please try again in a minute." };
+                return { success: false, error: "Connection failed. Please check your internet." };
             },
 
             async forceDownload(url, filename) {
+                // Use CORS proxy for the actual file download to ensure GitHub Pages compatibility
                 const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
                 
                 try {
+                    UI.updateStatusText("Downloading file...");
                     const response = await fetch(proxyUrl);
-                    if (!response.ok) throw new Error("Network response was not ok.");
+                    if (!response.ok) throw new Error("Download failed");
                     
                     const blob = await response.blob();
                     
+                    // Modern "Save As" Dialog
                     if (window.showSaveFilePicker) {
                         const ext = this.state.mode === 'audio' ? 'mp3' : 'mp4';
                         const handle = await window.showSaveFilePicker({
@@ -346,7 +353,7 @@
                         await writable.write(blob);
                         await writable.close();
                     } else {
-                        // Fallback for mobile/Safari/Firefox
+                        // Fallback for Mobile/Safari
                         const blobUrl = URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = blobUrl;
@@ -359,7 +366,7 @@
                     return true;
                 } catch (e) {
                     console.error(e);
-                    // Ultimate fallback: open in new tab
+                    // Ultimate Fallback: Open raw stream in new tab
                     window.open(url, '_blank');
                     return false;
                 }
@@ -432,7 +439,7 @@
 
                 const url = this.elements.input.value.trim();
 
-                // Case 1: Empty -> Paste from Clipboard
+                // Case 1: Empty -> Paste
                 if (url === "") {
                     try {
                         const text = await navigator.clipboard.readText();
@@ -440,26 +447,26 @@
                         this.updateButtonState();
                         if (Logic.isValidUrl(text)) this.handleActionClick(); 
                     } catch (err) {
-                        this.showError("Could not access clipboard. Try pasting manually.");
+                        this.showError("Could not paste. Please paste manually.");
                     }
                     return;
                 }
 
-                // Case 2: Process URL
+                // Case 2: Download
                 this.startProcessing();
                 const result = await Logic.processUrl(url);
                 
                 if (result.success) {
-                    this.updateStatusText("Preparing file...");
-                    await Logic.forceDownload(result.url, result.filename);
+                    const downloaded = await Logic.forceDownload(result.url, result.filename);
                     
-                    Logic.state.history.unshift({
-                        url: url,
-                        mode: Logic.state.mode,
-                        date: new Date().toLocaleString()
-                    });
-                    Logic.saveHistory();
-                    
+                    if(downloaded) {
+                        Logic.state.history.unshift({
+                            url: url,
+                            mode: Logic.state.mode,
+                            date: new Date().toLocaleString()
+                        });
+                        Logic.saveHistory();
+                    }
                     this.stopProcessing(true);
                 } else {
                     this.stopProcessing(false, result.error);
@@ -575,4 +582,4 @@
         });
     </script>
 </body>
-    </html>
+                </html>
